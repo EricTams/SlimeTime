@@ -70,3 +70,15 @@ Rendering is currently smoke-tested in the browser. Exact pixel tests are intent
 The workflow at `.github/workflows/pages.yml` builds and deploys the static Vite output from `dist`.
 
 For a repository named `SlimeTime`, the production Vite base path is `/SlimeTime/`. In GitHub, enable Pages with the source set to GitHub Actions.
+
+### What runs where
+
+| Check | Local (`test-local.bat`) | CI (`pages.yml`) |
+|---|---|---|
+| `npm run typecheck` | yes | yes |
+| `npm run test` (unit) | yes | yes |
+| `npm run test:coverage` | yes | yes |
+| `npm run build` | yes | yes |
+| `npm run test:e2e` (Playwright) | yes | no |
+
+Playwright browser smoke tests run locally only. Headless Chromium on Linux CI uses a software rasterizer (SwiftShader) and is sensitive to timing on a constantly reflowing HUD, which produces flakes that aren't real regressions. Always run `test-local.bat` before pushing to catch e2e issues.
