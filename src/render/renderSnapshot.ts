@@ -25,5 +25,6 @@ export function createUnitRenderData(
       pathDirection: pathDirectionAt(unit),
       crowding: crowdingAt(unit),
       hitFlash: Math.max(0, 1 - (time - unit.lastDamagedAt) / 0.25),
+      archetype: unit.archetype,
     }));
 }

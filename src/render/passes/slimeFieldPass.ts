@@ -112,36 +112,59 @@ export class SlimeFieldPass {
         .fill({ color: 0xffffff, alpha: 0.42 });
 
       if (this.embeddedEyeLayer.visible) {
-        const eyeY = unit.y - unit.radius * 0.18;
-        const eyeRadius = Math.max(1.8, unit.radius * 0.14);
-        const highlightRadius = Math.max(0.65, unit.radius * 0.045);
         const lookDirection = this.easeEyeDirection(unit.id, unit.pathDirection, eyeDeltaSeconds);
-        const horizontalLook = Math.abs(lookDirection.x);
-        const baseEyeOffset = Math.max(3, unit.radius * 0.28);
-        const horizontalGap = clamp(this.eyeTuning.horizontalEyeGap, 0, 1);
-        const eyeOffset = Math.max(
-          eyeRadius * 1.15,
-          baseEyeOffset * (1 - horizontalLook * (1 - horizontalGap)),
-        );
-        const eyeShiftReach = eyeRadius * 0.38 * this.eyeTuning.eyeTrackingAmount;
-        const eyeShiftX = lookDirection.x * eyeShiftReach;
-        const eyeShiftY = lookDirection.y * eyeShiftReach;
-        const highlightReach = eyeRadius * 0.38;
-        const highlightX = lookDirection.x * highlightReach;
-        const highlightY = lookDirection.y * highlightReach - eyeRadius * 0.18;
-        const leftEyeX = unit.x - eyeOffset + eyeShiftX;
-        const rightEyeX = unit.x + eyeOffset + eyeShiftX;
-        const eyeCenterY = eyeY + eyeShiftY;
+        const isHorde = unit.archetype === undefined || unit.archetype === 'horde';
 
-        this.eyeInk
-          .circle(leftEyeX, eyeCenterY, eyeRadius)
-          .fill({ color: 0x030403, alpha: 0.86 })
-          .circle(rightEyeX, eyeCenterY, eyeRadius)
-          .fill({ color: 0x030403, alpha: 0.86 })
-          .circle(leftEyeX + highlightX, eyeCenterY + highlightY, highlightRadius)
-          .fill({ color: 0xffffff, alpha: 0.82 })
-          .circle(rightEyeX + highlightX, eyeCenterY + highlightY, highlightRadius)
-          .fill({ color: 0xffffff, alpha: 0.82 });
+        if (isHorde) {
+          const eyeRadius = Math.max(2.6, unit.radius * 0.34);
+          const sclerRadius = eyeRadius * 1.18;
+          const pupilRadius = eyeRadius * 0.55;
+          const highlightRadius = Math.max(0.9, eyeRadius * 0.22);
+          const eyeY = unit.y - unit.radius * 0.18;
+          const pupilShiftReach = eyeRadius * 0.32 * this.eyeTuning.eyeTrackingAmount * 0.18;
+          const pupilShiftX = lookDirection.x * pupilShiftReach;
+          const pupilShiftY = lookDirection.y * pupilShiftReach;
+          const highlightX = unit.x - eyeRadius * 0.32 + pupilShiftX * 0.6;
+          const highlightY = eyeY - eyeRadius * 0.34 + pupilShiftY * 0.6;
+
+          this.eyeInk
+            .circle(unit.x, eyeY, sclerRadius)
+            .fill({ color: 0xffffff, alpha: 0.92 })
+            .circle(unit.x + pupilShiftX, eyeY + pupilShiftY, pupilRadius)
+            .fill({ color: 0x040506, alpha: 0.94 })
+            .circle(highlightX, highlightY, highlightRadius)
+            .fill({ color: 0xffffff, alpha: 0.95 });
+        } else {
+          const eyeY = unit.y - unit.radius * 0.18;
+          const eyeRadius = Math.max(1.8, unit.radius * 0.14);
+          const highlightRadius = Math.max(0.65, unit.radius * 0.045);
+          const horizontalLook = Math.abs(lookDirection.x);
+          const baseEyeOffset = Math.max(3, unit.radius * 0.28);
+          const horizontalGap = clamp(this.eyeTuning.horizontalEyeGap, 0, 1);
+          const eyeOffset = Math.max(
+            eyeRadius * 1.15,
+            baseEyeOffset * (1 - horizontalLook * (1 - horizontalGap)),
+          );
+          const eyeShiftReach = eyeRadius * 0.38 * this.eyeTuning.eyeTrackingAmount;
+          const eyeShiftX = lookDirection.x * eyeShiftReach;
+          const eyeShiftY = lookDirection.y * eyeShiftReach;
+          const highlightReach = eyeRadius * 0.38;
+          const highlightX = lookDirection.x * highlightReach;
+          const highlightY = lookDirection.y * highlightReach - eyeRadius * 0.18;
+          const leftEyeX = unit.x - eyeOffset + eyeShiftX;
+          const rightEyeX = unit.x + eyeOffset + eyeShiftX;
+          const eyeCenterY = eyeY + eyeShiftY;
+
+          this.eyeInk
+            .circle(leftEyeX, eyeCenterY, eyeRadius)
+            .fill({ color: 0x030403, alpha: 0.86 })
+            .circle(rightEyeX, eyeCenterY, eyeRadius)
+            .fill({ color: 0x030403, alpha: 0.86 })
+            .circle(leftEyeX + highlightX, eyeCenterY + highlightY, highlightRadius)
+            .fill({ color: 0xffffff, alpha: 0.82 })
+            .circle(rightEyeX + highlightX, eyeCenterY + highlightY, highlightRadius)
+            .fill({ color: 0xffffff, alpha: 0.82 });
+        }
       }
 
       if (unit.hitFlash > 0) {

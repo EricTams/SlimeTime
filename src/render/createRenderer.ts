@@ -1,6 +1,7 @@
 import { Application, Container } from 'pixi.js';
 import type { RenderSnapshot } from '../sim/types';
 import { BackgroundGooPass } from './passes/backgroundGooPass';
+import { CampaignPass } from './passes/campaignPass';
 import { EffectsPass } from './passes/effectsPass';
 import { SlimeFieldPass, type SlimeRenderDebugOptions } from './passes/slimeFieldPass';
 import { VectorFieldPass } from './passes/vectorFieldPass';
@@ -15,6 +16,7 @@ export interface SlimeRenderer {
   app: Application;
   render(snapshot: RenderSnapshot): void;
   setDebugOptions(options: SlimeRendererDebugOptions): void;
+  worldFromScreen(screenX: number, screenY: number): { x: number; y: number };
   destroy(): void;
 }
 
@@ -35,6 +37,7 @@ export async function createRenderer(host: HTMLElement): Promise<SlimeRenderer> 
   const slimeFieldPass = new SlimeFieldPass();
   const wallPass = new WallPass();
   const effectsPass = new EffectsPass();
+  const campaignPass = new CampaignPass();
 
   stage.addChild(
     backgroundGooPass.container,
@@ -42,6 +45,7 @@ export async function createRenderer(host: HTMLElement): Promise<SlimeRenderer> 
     vectorFieldPass.container,
     wallPass.container,
     effectsPass.container,
+    campaignPass.container,
   );
   app.stage.addChild(stage);
 
@@ -53,7 +57,15 @@ export async function createRenderer(host: HTMLElement): Promise<SlimeRenderer> 
       vectorFieldPass.render(snapshot);
       wallPass.render(snapshot);
       effectsPass.render(snapshot);
+      campaignPass.render(snapshot);
       fitStage(stage, snapshot, app.screen.width, app.screen.height);
+    },
+    worldFromScreen(screenX: number, screenY: number): { x: number; y: number } {
+      const inverse = stage.scale.x === 0 ? 0 : 1 / stage.scale.x;
+      return {
+        x: (screenX - stage.position.x) * inverse,
+        y: (screenY - stage.position.y) * inverse,
+      };
     },
     setDebugOptions(options: SlimeRendererDebugOptions) {
       vectorFieldPass.setVisible({

@@ -27,7 +27,13 @@ On Windows, double-click or run:
 run-local.bat
 ```
 
-Press `Space` in the game to trigger a sample AoE damage event.
+The campaign hub is the entry point. Pick a level (only the tutorial is unlocked at first), survive its waves, and earn **Goo** for upgrades and **Cores** for new tools.
+
+In a run:
+- Click a tool in the bottom toolbar to select it.
+- Click on the maze to deploy a structure or trigger an ability.
+- Right-click a structure to sell it for a partial charge refund.
+- Click a structure that has a Gremlin attached to shoo it off.
 
 ## Verification
 
@@ -51,11 +57,17 @@ The batch file installs dependencies when `node_modules` is missing, installs Pl
 
 ## Project Structure
 
-- `src/main.ts` boots the PixiJS app, creates the demo maze, and starts the game loop.
-- `src/content/demoMaze.ts` defines the initial maze and deterministic slime spawns.
+- `src/main.ts` boots the campaign app and routes between hub and run screens.
+- `src/hub/` contains the hub screen (level select + upgrade tree) and the in-run screen (HUD + canvas wiring).
+- `src/campaign/` contains the campaign systems:
+  - `economy.ts` (Goo/Core payouts), `chargeSystem.ts`, `archetypes.ts`, `spawnSlime.ts`,
+  - `structures.ts`, `abilities.ts`,
+  - `levels.ts`, `mazeGenerators.ts`, `waveScheduler.ts`,
+  - `upgradeTree.ts`, `metaProgress.ts`, `runController.ts`.
 - `src/sim/` contains the CPU simulation: flow field, density field, spatial hash, wall clamping, damage, and snapshots.
-- `src/render/` contains the PixiJS rendering shell and ordered render passes.
+- `src/render/` contains the PixiJS rendering shell and ordered render passes (including the campaign overlay pass).
 - `src/render/shaders/` is reserved for the custom shader implementation as the slime field evolves.
+- `src/content/demoMaze.ts` is the original demo maze, kept available for fixtures.
 - `test/fixtures/` contains deterministic regression fixtures.
 - `tests/e2e/` contains Playwright browser smoke tests.
 

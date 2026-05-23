@@ -407,4 +407,91 @@ describe('World', () => {
 
     expect(snapshot.tooCrowdedField).toHaveLength(0);
   });
+
+  describe('projectiles', () => {
+    it('hits the first slime in its swept path with no pierce', () => {
+      const maze = createOpenFixtureMaze();
+      const a = fixtureUnit(1, 25, 25);
+      const b = fixtureUnit(2, 40, 25);
+      const world = new World({
+        maze,
+        units: [a, b],
+        seed: 1,
+        config: { jitterStrength: 0, flowWeight: 0, separationWeight: 0, densityWeight: 0 },
+      });
+      world.spawnProjectile({
+        kind: 'arrow',
+        origin: { x: 15, y: 25 },
+        direction: { x: 1, y: 0 },
+        speed: 200,
+        range: 80,
+        damage: 5,
+        pierce: 0,
+        color: 0xffffff,
+      });
+      const initialA = a.health;
+      const initialB = b.health;
+      for (let i = 0; i < 10; i += 1) {
+        world.step(0.05);
+      }
+      expect(a.health).toBeLessThan(initialA);
+      expect(b.health).toBe(initialB);
+    });
+
+    it('passes through pierced slimes and dies on an unshelled armored', () => {
+      const maze = createOpenFixtureMaze();
+      const a = fixtureUnit(1, 25, 25);
+      const b = fixtureUnit(2, 40, 25);
+      const world = new World({
+        maze,
+        units: [a, b],
+        seed: 1,
+        config: { jitterStrength: 0, flowWeight: 0, separationWeight: 0, densityWeight: 0 },
+      });
+      world.spawnProjectile({
+        kind: 'arrow',
+        origin: { x: 15, y: 25 },
+        direction: { x: 1, y: 0 },
+        speed: 200,
+        range: 80,
+        damage: 5,
+        pierce: 2,
+        color: 0xffffff,
+      });
+      const initialA = a.health;
+      const initialB = b.health;
+      for (let i = 0; i < 10; i += 1) {
+        world.step(0.05);
+      }
+      expect(a.health).toBeLessThan(initialA);
+      expect(b.health).toBeLessThan(initialB);
+    });
+
+    it('expires when range is exhausted', () => {
+      const maze = createOpenFixtureMaze();
+      const distant = fixtureUnit(1, 100, 25);
+      const world = new World({
+        maze,
+        units: [distant],
+        seed: 1,
+        config: { jitterStrength: 0, flowWeight: 0, separationWeight: 0, densityWeight: 0 },
+      });
+      world.spawnProjectile({
+        kind: 'arrow',
+        origin: { x: 15, y: 25 },
+        direction: { x: 1, y: 0 },
+        speed: 200,
+        range: 30,
+        damage: 5,
+        pierce: 0,
+        color: 0xffffff,
+      });
+      const initial = distant.health;
+      for (let i = 0; i < 20; i += 1) {
+        world.step(0.05);
+      }
+      expect(distant.health).toBe(initial);
+      expect(world.getProjectiles()).toHaveLength(0);
+    });
+  });
 });
